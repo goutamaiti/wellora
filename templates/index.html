@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellora - Smart BMR Calculator & Indian Cuisine Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#home" class="logo">🌱 Wellora</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About BMR</a></li>
+                <li><a href="#calculator">Calculator</a></li>
+            </ul>
+            <a href="#calculator" class="cta-button">Start Now</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Discover Your Perfect<br>Health Journey</h1>
+                <p>Calculate your Basal Metabolic Rate (BMR) and get personalized Indian cuisine recommendations tailored to your caloric needs and dietary preferences.</p>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">2000+</span>
+                        <span class="stat-label">Happy Users</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">29</span>
+                        <span class="stat-label">Indian States</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">AI</span>
+                        <span class="stat-label">Powered</span>
+                    </div>
+                </div>
+                
+                <a href="#calculator" class="cta-button">Calculate Your BMR</a>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="calculator-preview">
+                    <h3>🧮 BMR Calculator</h3>
+                    <p>Get instant results with AI-powered meal recommendations from your favorite Indian state cuisine.</p>
+                    <div style="margin-top: 1rem; padding: 1rem; background: var(--cream); border-radius: 8px;">
+                        <small>✓ Accurate BMR calculation<br>
+                        ✓ State-specific cuisine<br>
+                        ✓ Dietary preferences<br>
+                        ✓ Meal planning</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="about-container">
+            <div class="about-content">
+                <h2>Why BMR & Calorie Tracking Matter</h2>
+                <p>Your <strong>Basal Metabolic Rate (BMR)</strong> is the number of calories your body needs to maintain basic physiological functions at rest. Understanding your BMR is crucial for:</p>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⚖️</div>
+                        <h4>Weight Management</h4>
+                        <p>Set realistic calorie goals for healthy weight loss or gain</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💪</div>
+                        <h4>Fitness Planning</h4>
+                        <p>Optimize your nutrition for better workout performance</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🧠</div>
+                        <h4>Health Awareness</h4>
+                        <p>Make informed decisions about your daily food intake</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🍽️</div>
+                        <h4>Meal Planning</h4>
+                        <p>Create balanced meals that match your metabolic needs</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-visual">
+                <div style="background: var(--white); padding: 2rem; border-radius: 20px; box-shadow: 0 8px 30px var(--shadow);">
+                    <h3 style="color: var(--teal); margin-bottom: 1rem;">🔬 Science-Based Formula</h3>
+                    <p style="margin-bottom: 1rem;">We use the <strong>Mifflin-St Jeor Equation</strong>, the most accurate method for BMR calculation:</p>
+                    <div style="background: var(--cream); padding: 1rem; border-radius: 8px; font-family: monospace;">
+                        <strong>Men:</strong> BMR = 10×weight + 6.25×height - 5×age + 5<br>
+                        <strong>Women:</strong> BMR = 10×weight + 6.25×height - 5×age - 161
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--light-text);">Then multiplied by activity factor for total daily energy expenditure</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section id="calculator" class="calculator-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>BMR Calculator</h2>
+                <p>Get your personalized metabolic rate and Indian cuisine recommendations</p>
+            </div>
+            <div class="calculator-container">
+                <form method="POST" class="calculator-form">
+                    <div class="form-section">
+                        <h3>📋 Basic Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select name="gender" id="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="male" {% if gender == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if gender == 'female' %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="age">Age (years)</label>
+                                <input type="number" name="age" id="age" min="18" max="100" 
+                                       value="{{ age or '' }}" placeholder="25" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" name="weight" id="weight" step="0.1" min="30" max="200" 
+                                       value="{{ weight or '' }}" placeholder="70.0" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" name="height" id="height" min="100" max="250" 
+                                       value="{{ height or '' }}" placeholder="175" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>🏃‍♂️ Activity Level</h3>
+                        <div class="form-group">
+                            <select name="activity" id="activity" required>
+                                <option value="">Select Activity Level</option>
+                                <option value="sedentary" {% if activity == 'sedentary' %}selected{% endif %}>
+                                    Sedentary (Little to no exercise)
+                                </option>
+                                <option value="light" {% if activity == 'light' %}selected{% endif %}>
+                                    Lightly Active (Light exercise 1-3 days/week)
+                                </option>
+                                <option value="moderate" {% if activity == 'moderate' %}selected{% endif %}>
+                                    Moderately Active (Moderate exercise 3-5 days/week)
+                                </option>
+                                <option value="very" {% if activity == 'very' %}selected{% endif %}>
+                                    Very Active (Hard exercise 6-7 days/week)
+                                </option>
+                                <option value="extra" {% if activity == 'extra' %}selected{% endif %}>
+                                    Extremely Active (Very hard exercise, physical job)
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🍛 Food Preferences</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="state">Favorite Indian State Cuisine</label>
+                                <select name="state" id="state" required>
+                                    <option value="">Select a state</option>
+                                    <option value="Andhra Pradesh" {% if state == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
+                                    <option value="Arunachal Pradesh" {% if state == 'Arunachal Pradesh' %}selected{% endif %}>Arunachal Pradesh</option>
+                                    <option value="Assam" {% if state == 'Assam' %}selected{% endif %}>Assam</option>
+                                    <option value="Bihar" {% if state == 'Bihar' %}selected{% endif %}>Bihar</option>
+                                    <option value="Chhattisgarh" {% if state == 'Chhattisgarh' %}selected{% endif %}>Chhattisgarh</option>
+                                    <option value="Goa" {% if state == 'Goa' %}selected{% endif %}>Goa</option>
+                                    <option value="Gujarat" {% if state == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                                    <option value="Haryana" {% if state == 'Haryana' %}selected{% endif %}>Haryana</option>
+                                    <option value="Himachal Pradesh" {% if state == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
+                                    <option value="Jharkhand" {% if state == 'Jharkhand' %}selected{% endif %}>Jharkhand</option>
+                                    <option value="Karnataka" {% if state == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                                    <option value="Kerala" {% if state == 'Kerala' %}selected{% endif %}>Kerala</option>
+                                    <option value="Madhya Pradesh" {% if state == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                                    <option value="Maharashtra" {% if state == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                                    <option value="Manipur" {% if state == 'Manipur' %}selected{% endif %}>Manipur</option>
+                                    <option value="Meghalaya" {% if state == 'Meghalaya' %}selected{% endif %}>Meghalaya</option>
+                                    <option value="Mizoram" {% if state == 'Mizoram' %}selected{% endif %}>Mizoram</option>
+                                    <option value="Nagaland" {% if state == 'Nagaland' %}selected{% endif %}>Nagaland</option>
+                                    <option value="Odisha" {% if state == 'Odisha' %}selected{% endif %}>Odisha</option>
+                                    <option value="Punjab" {% if state == 'Punjab' %}selected{% endif %}>Punjab</option>
+                                    <option value="Rajasthan" {% if state == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                                            <option value="Sikkim" {% if state == 'Sikkim' %}selected{% endif %}>Sikkim</option>
+                                    <option value="Tamil Nadu" {% if state == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                                    <option value="Telangana" {% if state == 'Telangana' %}selected{% endif %}>Telangana</option>
+                                    <option value="Tripura" {% if state == 'Tripura' %}selected{% endif %}>Tripura</option>
+                                    <option value="Uttar Pradesh" {% if state == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                                    <option value="Uttarakhand" {% if state == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                                    <option value="West Bengal" {% if state == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                                    <option value="Delhi" {% if state == 'Delhi' %}selected{% endif %}>Delhi</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="food_preference">Dietary Preference</label>
+                                <select name="food_preference" id="food_preference" required>
+                                    <option value="">Select your preference</option>
+                                    <option value="vegetarian" {% if food_preference == 'vegetarian' %}selected{% endif %}>
+                                        🥬 Vegetarian (No meat, poultry, fish)
+                                    </option>
+                                    <option value="non-vegetarian" {% if food_preference == 'non-vegetarian' %}selected{% endif %}>
+                                        🍖 Non-Vegetarian (All foods including meat)
+                                    </option>
+                                    <option value="eggetarian" {% if food_preference == 'eggetarian' %}selected{% endif %}>
+                                        🥚 Eggetarian (Vegetarian + Eggs)
+                                    </option>
+                                    <option value="mixed" {% if food_preference == 'mixed' %}selected{% endif %}>
+                                        🍽️ Mixed (Flexible with all options)
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <span>🧮 Calculate BMR & Get Recommendations</span>
+                    </button>
+                </form>
+            
+            {% if bmr %}
+            <div class="results-section">
+                <div class="bmr-result">
+                    <h3>📊 Your Metabolic Results</h3>
+                    <div class="result-cards">
+                        <div class="result-card">
+                            <div class="result-icon">🔥</div>
+                            <div class="result-content">
+                                <span class="result-label">Basal Metabolic Rate</span>
+                                <span class="result-value">{{ bmr }} cal/day</span>
+                                <span class="result-desc">Calories burned at rest</span>
+                            </div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-icon">⚡</div>
+                            <div class="result-content">
+                                <span class="result-label">Total Daily Energy</span>
+                                <span class="result-value">{{ daily_calories }} cal/day</span>
+                                <span class="result-desc">With {{ activity }} activity</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-explanation">
+                        <p>Your body burns <strong>{{ bmr }} calories</strong> just maintaining basic functions like breathing and circulation. With your <strong>{{ activity }}</strong> lifestyle, you need <strong>{{ daily_calories }} calories daily</strong> to maintain your current weight.</p>
+                    </div>
+                </div>
+            
+                {% if meal_plan %}
+                <div class="meal-plan">
+                    <div class="meal-plan-header">
+                        <h3>🍽️ Your Personalized {{ state }} Meal Plan</h3>
+                        <p>AI-curated <strong>{{ food_preference }}</strong> dishes from <strong>{{ state }}</strong> cuisine, balanced for your <strong>{{ daily_calories }} daily calories</strong></p>
+                    </div>
+                    
+                    <div class="meals-grid">
+                        {% for meal_type, meal_info in meal_plan.items() %}
+                        <div class="meal-card">
+                            <div class="meal-header">
+                                <div class="meal-title">
+                                    <span class="meal-icon">
+                                        {% if meal_type == 'breakfast' %}🌅
+                                        {% elif meal_type == 'lunch' %}☀️  
+                                        {% elif meal_type == 'dinner' %}🌙
+                                        {% endif %}
+                                    </span>
+                                    <h4>{{ meal_type.title() }}</h4>
+                                </div>
+                                <span class="meal-calories">~{{ meal_info.calories }} cal</span>
+                            </div>
+                            <p class="meal-description">{{ meal_info.description }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>🌱 Wellora</h3>
+                    <p>Empowering your health journey with science-based nutrition and traditional Indian cuisine wisdom.</p>
+                </div>
+                <div class="footer-links">
+                    <div>
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="#about">About BMR</a></li>
+                            <li><a href="#calculator">Calculator</a></li>
+                            <li><a href="#">Nutrition Guide</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Contact</a></li>
+                            <li><a href="#">Privacy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Wellora. Made with ❤️ for better health.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Form enhancement
+        const form = document.querySelector('.calculator-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('.submit-btn');
+                submitBtn.innerHTML = '<span>🧮 Calculating...</span>';
+                submitBtn.disabled = true;
+            });
+        }
+    </script>
+</body>
+</html>
