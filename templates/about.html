@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Wellora Health Journal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Indie+Flower&family=Amatic+SC:wght@400;700&family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="diary-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('landing') }}" class="logo">My Health Journal</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('landing') }}">Home</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('calculator') }}">Calculator</a></li>
+                    <li><a href="{{ url_for('breathe') }}">Breathe</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('about') }}" class="active">About</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('logout') }}">Logout ({{ session.username }})</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- About Section -->
+    <section class="about-diary">
+        <div class="diary-page about-page">
+            <div class="page-header">
+                <div class="date-stamp">Project Story</div>
+                <div class="page-line"></div>
+            </div>
+
+            <div class="diary-content">
+                <h1 class="diary-title">About Wellora</h1>
+                
+                <div class="diary-entry">
+                    <h2 class="entry-subtitle">The Vision</h2>
+                    <p class="entry-text">
+                        Wellora began as a vision to bridge the gap between modern health science and 
+                        traditional Indian culinary wisdom. In a world where nutrition advice often 
+                        feels disconnected from our cultural roots, this project seeks to provide 
+                        personalized health guidance that honors India's rich food heritage.
+                    </p>
+                </div>
+
+                <div class="diary-entry">
+                    <h2 class="entry-subtitle">What We Do</h2>
+                    <p class="entry-text">
+                        Using the scientifically validated Mifflin-St Jeor equation, Wellora calculates 
+                        your Basal Metabolic Rate (BMR) - the number of calories your body needs to 
+                        maintain basic physiological functions. We then combine this with AI-powered 
+                        recommendations to suggest authentic dishes from your chosen Indian state cuisine 
+                        that align with your dietary preferences and caloric needs.
+                    </p>
+                    
+                    <div class="feature-highlight">
+                        <h3>Key Features:</h3>
+                        <ul class="feature-list">
+                            <li>Accurate BMR calculation using proven scientific methods</li>
+                            <li>Personalized meal recommendations from 29 Indian states</li>
+                            <li>Support for various dietary preferences (vegetarian, non-vegetarian, eggetarian, mixed)</li>
+                            <li>Activity level adjustments for total daily energy expenditure</li>
+                            <li>AI-powered meal planning with cultural authenticity</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="diary-entry">
+                    <h2 class="entry-subtitle">The Science Behind BMR</h2>
+                    <p class="entry-text">
+                        Your Basal Metabolic Rate represents the energy required for vital functions 
+                        like breathing, circulation, cell production, and brain function. Understanding 
+                        your BMR is crucial for:
+                    </p>
+                    <ul class="science-list">
+                        <li><strong>Weight Management:</strong> Setting realistic calorie goals for healthy weight changes</li>
+                        <li><strong>Fitness Planning:</strong> Optimizing nutrition for better workout performance</li>
+                        <li><strong>Health Awareness:</strong> Making informed decisions about daily food intake</li>
+                        <li><strong>Meal Planning:</strong> Creating balanced meals that match your metabolic needs</li>
+                    </ul>
+                </div>
+
+                <div class="diary-entry creator-section">
+                    <h2 class="entry-subtitle">About the Creator</h2>
+                    <div class="creator-card">
+                        <div class="creator-info">
+                            <h3 class="creator-name">Student Project</h3>
+                            <p class="creator-title">Computer Science Student</p>
+                            <p class="creator-institution">College Engineering Project</p>
+                        </div>
+                        <div class="creator-description">
+                            <p class="entry-text">
+                                This project was created as part of a computer science engineering curriculum, 
+                                combining passion for health technology with cultural appreciation for Indian cuisine. 
+                                The goal was to develop a practical application that demonstrates both technical 
+                                skills and social impact.
+                            </p>
+                            <p class="entry-text">
+                                As a student exploring the intersection of technology and wellness, this project 
+                                represents a commitment to creating tools that are both scientifically sound and 
+                                culturally relevant for Indian users.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="diary-entry">
+                    <h2 class="entry-subtitle">Technical Implementation</h2>
+                    <p class="entry-text">
+                        Wellora is built using modern web technologies:
+                    </p>
+                    <ul class="tech-list">
+                        <li><strong>Backend:</strong> Flask (Python) for robust server-side processing</li>
+                        <li><strong>AI Integration:</strong> OpenRouter API for intelligent meal recommendations</li>
+                        <li><strong>Frontend:</strong> Responsive HTML/CSS with diary-inspired design</li>
+                        <li><strong>Data Processing:</strong> Scientific calculations for BMR and calorie needs</li>
+                        <li><strong>User Experience:</strong> Intuitive forms with comprehensive validation</li>
+                    </ul>
+                </div>
+
+                <div class="diary-entry">
+                    <h2 class="entry-subtitle">Future Aspirations</h2>
+                    <p class="entry-text">
+                        This project represents just the beginning of a larger vision to make health 
+                        technology more accessible and culturally relevant. Future enhancements may include:
+                    </p>
+                    <ul class="future-list">
+                        <li>Expanded recipe database with detailed nutritional information</li>
+                        <li>Integration with fitness tracking for more precise recommendations</li>
+                        <li>Community features for sharing healthy traditional recipes</li>
+                        <li>Support for regional languages and local food variations</li>
+                        <li>Mobile application for on-the-go access</li>
+                    </ul>
+                </div>
+
+                <div class="diary-entry">
+                    <h2 class="entry-subtitle">Acknowledgments</h2>
+                    <p class="entry-text">
+                        Special thanks to the rich culinary traditions of India that inspire this work, 
+                        the scientific community for providing validated health calculations, and the 
+                        open-source community for making modern web development accessible to students 
+                        and researchers worldwide.
+                    </p>
+                </div>
+            </div>
+
+            <div class="page-footer">
+                <div class="page-line"></div>
+                <div class="signature">- Created with passion for health and heritage</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="diary-footer">
+        <div class="footer-page">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>Wellora</h3>
+                    <p>Your personal health journal, powered by science and tradition.</p>
+                </div>
+                <div class="footer-note">
+                    <p>Made with care for your wellness journey.</p>
+                    <p class="copyright">© 2024 Wellora Health Journal</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

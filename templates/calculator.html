@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMR Calculator - My Health Journal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Comfortaa:wght@300;400;500;600;700&family=Righteous&family=Fredoka:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="diary-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('landing') }}" class="logo">My Health Journal</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('landing') }}">Home</a></li>
+                <li><a href="{{ url_for('calculator') }}" class="active">Calculator</a></li>
+                <li><a href="{{ url_for('breathe') }}">Breathe</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('logout') }}">Logout ({{ session.username }})</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Calculator Section -->
+    <section class="calculator-diary">
+        <div class="diary-page calculator-page">
+            <div class="page-header">
+                <div class="date-stamp">Health Assessment</div>
+                <div class="page-line"></div>
+            </div>
+
+            <div class="diary-content">
+                <h1 class="diary-title">My Health Journey</h1>
+                
+                <div class="diary-entry">
+                    <p class="entry-text">
+                        Welcome back, {{ session.username }}! Track your progress and get personalized meal 
+                        recommendations from India's diverse culinary heritage.
+                    </p>
+                </div>
+
+                {% if user_data %}
+                <!-- Progress Tracking Section -->
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <h2 class="progress-title">Today's Goals</h2>
+                        <span class="progress-percentage">{{ user_data.progress.completion_percentage|round }}%</span>
+                    </div>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ user_data.progress.completion_percentage }}%"></div>
+                    </div>
+                    
+                    <div class="goals-checklist">
+                        {% for goal_id, goal_data in user_data.goals.items() %}
+                        <div class="goal-item {% if goal_data.completed %}completed{% endif %}">
+                            <input type="checkbox" class="goal-checkbox" 
+                                   data-goal-id="{{ goal_id }}"
+                                   {% if goal_data.completed %}checked{% endif %}
+                                   onchange="updateGoal('{{ goal_id }}', this.checked)">
+                            <span class="goal-text">
+                                {% if goal_id == 'daily_water' %}
+                                    Drink {{ goal_data.target }} glasses of water
+                                {% elif goal_id == 'daily_exercise' %}
+                                    Exercise for {{ goal_data.target }}
+                                {% elif goal_id == 'healthy_meals' %}
+                                    Eat {{ goal_data.target }} healthy meals
+                                {% elif goal_id == 'sleep_hours' %}
+                                    Sleep {{ goal_data.target }} hours
+                                {% elif goal_id == 'meditation' %}
+                                    Meditate for {{ goal_data.target }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if user_data.meal_history %}
+                    <div class="meal-history">
+                        <h3 class="meal-history-title">Recent Meal History</h3>
+                        <div class="meal-history-list">
+                            {% for meal_entry in user_data.meal_history[-5:] %}
+                            <div class="meal-history-item">
+                                <strong>{{ meal_entry.date }}:</strong> 
+                                {{ meal_entry.meal_plan|join(', ') }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="/calculator" class="calculator-form diary-form">
+                    <div class="form-section">
+                        <h3 class="section-title">Basic Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select name="gender" id="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="male" {% if gender == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if gender == 'female' %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="age">Age (years)</label>
+                                <input type="number" name="age" id="age" min="18" max="100" 
+                                       value="{{ age or '' }}" placeholder="25" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" name="weight" id="weight" step="0.1" min="30" max="200" 
+                                       value="{{ weight or '' }}" placeholder="70.0" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" name="height" id="height" min="100" max="250" 
+                                       value="{{ height or '' }}" placeholder="175" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3 class="section-title">Activity Level</h3>
+                        <div class="form-group">
+                            <select name="activity" id="activity" required>
+                                <option value="">Select Activity Level</option>
+                                <option value="sedentary" {% if activity == 'sedentary' %}selected{% endif %}>
+                                    Sedentary (Little to no exercise)
+                                </option>
+                                <option value="light" {% if activity == 'light' %}selected{% endif %}>
+                                    Lightly Active (Light exercise 1-3 days/week)
+                                </option>
+                                <option value="moderate" {% if activity == 'moderate' %}selected{% endif %}>
+                                    Moderately Active (Moderate exercise 3-5 days/week)
+                                </option>
+                                <option value="very" {% if activity == 'very' %}selected{% endif %}>
+                                    Very Active (Hard exercise 6-7 days/week)
+                                </option>
+                                <option value="extra" {% if activity == 'extra' %}selected{% endif %}>
+                                    Extremely Active (Very hard exercise, physical job)
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Food Preferences</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="state">Favorite Indian State Cuisine</label>
+                                <select name="state" id="state" required>
+                                    <option value="">Select a state</option>
+                                    <option value="Andhra Pradesh" {% if state == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
+                                    <option value="Arunachal Pradesh" {% if state == 'Arunachal Pradesh' %}selected{% endif %}>Arunachal Pradesh</option>
+                                    <option value="Assam" {% if state == 'Assam' %}selected{% endif %}>Assam</option>
+                                    <option value="Bihar" {% if state == 'Bihar' %}selected{% endif %}>Bihar</option>
+                                    <option value="Chhattisgarh" {% if state == 'Chhattisgarh' %}selected{% endif %}>Chhattisgarh</option>
+                                    <option value="Goa" {% if state == 'Goa' %}selected{% endif %}>Goa</option>
+                                    <option value="Gujarat" {% if state == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                                    <option value="Haryana" {% if state == 'Haryana' %}selected{% endif %}>Haryana</option>
+                                    <option value="Himachal Pradesh" {% if state == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
+                                    <option value="Jharkhand" {% if state == 'Jharkhand' %}selected{% endif %}>Jharkhand</option>
+                                    <option value="Karnataka" {% if state == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                                    <option value="Kerala" {% if state == 'Kerala' %}selected{% endif %}>Kerala</option>
+                                    <option value="Madhya Pradesh" {% if state == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                                    <option value="Maharashtra" {% if state == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                                    <option value="Manipur" {% if state == 'Manipur' %}selected{% endif %}>Manipur</option>
+                                    <option value="Meghalaya" {% if state == 'Meghalaya' %}selected{% endif %}>Meghalaya</option>
+                                    <option value="Mizoram" {% if state == 'Mizoram' %}selected{% endif %}>Mizoram</option>
+                                    <option value="Nagaland" {% if state == 'Nagaland' %}selected{% endif %}>Nagaland</option>
+                                    <option value="Odisha" {% if state == 'Odisha' %}selected{% endif %}>Odisha</option>
+                                    <option value="Punjab" {% if state == 'Punjab' %}selected{% endif %}>Punjab</option>
+                                    <option value="Rajasthan" {% if state == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                                    <option value="Sikkim" {% if state == 'Sikkim' %}selected{% endif %}>Sikkim</option>
+                                    <option value="Tamil Nadu" {% if state == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                                    <option value="Telangana" {% if state == 'Telangana' %}selected{% endif %}>Telangana</option>
+                                    <option value="Tripura" {% if state == 'Tripura' %}selected{% endif %}>Tripura</option>
+                                    <option value="Uttar Pradesh" {% if state == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                                    <option value="Uttarakhand" {% if state == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                                    <option value="West Bengal" {% if state == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                                    <option value="Delhi" {% if state == 'Delhi' %}selected{% endif %}>Delhi</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" name="city" id="city" placeholder="Enter your city name" value="{% if city %}{{ city }}{% endif %}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="food_preference">Dietary Preference</label>
+                                <select name="food_preference" id="food_preference" required>
+                                    <option value="">Select your preference</option>
+                                    <option value="vegetarian" {% if food_preference == 'vegetarian' %}selected{% endif %}>
+                                        Vegetarian (No meat, poultry, fish)
+                                    </option>
+                                    <option value="non-vegetarian" {% if food_preference == 'non-vegetarian' %}selected{% endif %}>
+                                        Non-Vegetarian (All foods including meat)
+                                    </option>
+                                    <option value="eggetarian" {% if food_preference == 'eggetarian' %}selected{% endif %}>
+                                        Eggetarian (Vegetarian + Eggs)
+                                    </option>
+                                    <option value="mixed" {% if food_preference == 'mixed' %}selected{% endif %}>
+                                        Mixed (Flexible with all options)
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="diary-button primary submit-btn">
+                        Calculate BMR & Get Recommendations
+                    </button>
+                </form>
+            
+                {% if bmr %}
+                <div class="results-section diary-results">
+                    <div class="results-header">
+                        <div class="page-line"></div>
+                        <h3 class="results-title">Your Personal Results</h3>
+                    </div>
+                    
+                    <div class="bmr-result">
+                        <div class="result-cards">
+                            <div class="result-card">
+                                <div class="result-content">
+                                    <span class="result-label">Basal Metabolic Rate</span>
+                                    <span class="result-value">{{ bmr }} cal/day</span>
+                                    <span class="result-desc">Calories burned at rest</span>
+                                </div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-content">
+                                    <span class="result-label">Total Daily Energy</span>
+                                    <span class="result-value">{{ daily_calories }} cal/day</span>
+                                    <span class="result-desc">With {{ activity }} activity</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-explanation">
+                            <p>Your body burns <strong>{{ bmr }} calories</strong> just maintaining basic functions like breathing and circulation. With your <strong>{{ activity }}</strong> lifestyle, you need <strong>{{ daily_calories }} calories daily</strong> to maintain your current weight.</p>
+                        </div>
+                    </div>
+                
+                    {% if meal_plan %}
+                    <!-- Nutrition Progress Dashboard -->
+                    <div class="nutrition-dashboard">
+                        <h4 class="dashboard-title">Daily Nutrition Progress</h4>
+                        
+                        <div class="nutrition-overview">
+                            <div class="nutrition-charts">
+                                <div class="progress-donut-container">
+                                    <canvas id="caloriesChart" width="120" height="120"></canvas>
+                                    <div class="donut-label">   
+                                        <span class="donut-value" id="caloriesValue">0</span>
+                                        <span class="donut-total">/ {{ daily_calories }}</span>
+                                        <span class="donut-unit">calories</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="nutrition-bars">
+                                    <div class="nutrition-item">
+                                        <div class="nutrition-header">
+                                            <span class="nutrition-label">Carbs</span>
+                                            <span class="nutrition-values">
+                                                <span id="carbsValue">0</span>g / <span id="carbsTarget">{{ (daily_calories * 0.5 / 4)|round }}</span>g
+                                            </span>
+                                        </div>
+                                        <div class="nutrition-bar">
+                                            <div class="nutrition-progress" id="carbsProgress" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="nutrition-item">
+                                        <div class="nutrition-header">
+                                            <span class="nutrition-label">Protein</span>
+                                            <span class="nutrition-values">
+                                                <span id="proteinValue">0</span>g / <span id="proteinTarget">{{ (daily_calories * 0.25 / 4)|round }}</span>g
+                                            </span>
+                                        </div>
+                                        <div class="nutrition-bar">
+                                            <div class="nutrition-progress" id="proteinProgress" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="nutrition-item">
+                                        <div class="nutrition-header">
+                                            <span class="nutrition-label">Fat</span>
+                                            <span class="nutrition-values">
+                                                <span id="fatValue">0</span>g / <span id="fatTarget">{{ (daily_calories * 0.25 / 9)|round }}</span>g
+                                            </span>
+                                        </div>
+                                        <div class="nutrition-bar">
+                                            <div class="nutrition-progress" id="fatProgress" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="nutrition-item">
+                                        <div class="nutrition-header">
+                                            <span class="nutrition-label">Fiber</span>
+                                            <span class="nutrition-values">
+                                                <span id="fiberValue">0</span>g / <span id="fiberTarget">25</span>g
+                                            </span>
+                                        </div>
+                                        <div class="nutrition-bar">
+                                            <div class="nutrition-progress" id="fiberProgress" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meal Recommendations Table -->
+                    <div class="meal-plan diary-meal-plan">
+                        <div class="meal-plan-header">
+                            <h4 class="meal-plan-title">Your Personalized {% if city %}{{ city }}, {% endif %}{{ state }} Meal Plan</h4>
+                            <p class="meal-plan-desc">AI-curated <strong>{{ food_preference }}</strong> dishes from <strong>{% if city %}{{ city }}, {% endif %}{{ state }}</strong> cuisine, balanced for your <strong>{{ daily_calories }} daily calories</strong></p>
+                        </div>
+                        
+                        <div class="meal-table-container">
+                            <table class="meal-recommendations-table">
+                                <thead>
+                                    <tr>
+                                        <th class="meal-checkbox-col">Eaten</th>
+                                        <th class="meal-time-col">Meal</th>
+                                        <th class="meal-dish-col">Dish</th>
+                                        <th class="meal-calories-col">Calories</th>
+                                        <th class="meal-carbs-col">Carbs (g)</th>
+                                        <th class="meal-protein-col">Protein (g)</th>
+                                        <th class="meal-fat-col">Fat (g)</th>
+                                        <th class="meal-fiber-col">Fiber (g)</th>
+                                        <th class="meal-description-col">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for meal_type, meal_info in meal_plan.items() %}
+                                    <tr class="meal-row" data-meal-type="{{ meal_type }}">
+                                        <td class="meal-checkbox-cell">
+                                            <input type="checkbox" 
+                                                   class="meal-eaten-checkbox" 
+                                                   id="meal-{{ meal_type }}"
+                                                   data-meal-type="{{ meal_type }}"
+                                                   data-calories="{{ meal_info.calories }}"
+                                                   data-carbs="{{ (meal_info.calories * 0.5 / 4)|round }}"
+                                                   data-protein="{{ (meal_info.calories * 0.25 / 4)|round }}"
+                                                   data-fat="{{ (meal_info.calories * 0.25 / 9)|round }}"
+                                                   data-fiber="{{ (meal_info.calories / 100)|round }}"
+                                                   onchange="updateNutritionProgress()">
+                                        </td>
+                                        <td class="meal-time-cell">
+                                            <div class="meal-time-info">
+                                                <strong>{{ meal_type.title() }}</strong>
+                                                <span class="meal-time-period">
+                                                    {% if meal_type == 'breakfast' %}🌅 Morning
+                                                    {% elif meal_type == 'lunch' %}🌞 Afternoon  
+                                                    {% elif meal_type == 'dinner' %}🌙 Evening
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="meal-dish-cell">
+                                            <div class="dish-name">
+                                                {{ meal_info.description.split('.')[0] if '.' in meal_info.description else meal_info.description[:50] }}
+                                            </div>
+                                        </td>
+                                        <td class="meal-calories-cell">
+                                            <span class="calorie-value">{{ meal_info.calories }}</span>
+                                        </td>
+                                        <td class="meal-carbs-cell">
+                                            <span class="nutrient-value">{{ (meal_info.calories * 0.5 / 4)|round }}</span>
+                                        </td>
+                                        <td class="meal-protein-cell">
+                                            <span class="nutrient-value">{{ (meal_info.calories * 0.25 / 4)|round }}</span>
+                                        </td>
+                                        <td class="meal-fat-cell">
+                                            <span class="nutrient-value">{{ (meal_info.calories * 0.25 / 9)|round }}</span>
+                                        </td>
+                                        <td class="meal-fiber-cell">
+                                            <span class="nutrient-value">{{ (meal_info.calories / 100)|round }}</span>
+                                        </td>
+                                        <td class="meal-description-cell">
+                                            <div class="meal-description-text">
+                                                {{ meal_info.description }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Daily Summary -->
+                        <div class="daily-summary">
+                            <h5>Daily Nutrition Summary</h5>
+                            <div class="summary-stats">
+                                <div class="summary-item">
+                                    <span class="summary-label">Total Calories:</span>
+                                    <span class="summary-value" id="totalCalories">0</span> / {{ daily_calories }}
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Meals Completed:</span>
+                                    <span class="summary-value" id="mealsCompleted">0</span> / {{ meal_plan|length }}
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Progress:</span>
+                                    <span class="summary-value" id="overallProgress">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="page-footer">
+                <div class="page-line"></div>
+                <div class="signature">- Your Health Assessment</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="diary-footer">
+        <div class="footer-page">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>Wellora</h3>
+                    <p>Your personal health journal, powered by science and tradition.</p>
+                </div>
+                <div class="footer-note">
+                    <p>Made with care for your wellness journey.</p>
+                    <p class="copyright">© 2024 Wellora Health Journal</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Form enhancement
+        const form = document.querySelector('.calculator-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('.submit-btn');
+                if (submitBtn) {
+                    submitBtn.textContent = 'Calculating...';
+                    submitBtn.disabled = true;
+                }
+            });
+        }
+
+        // Progress tracking function
+        function updateGoal(goalId, completed) {
+            fetch('/progress/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `goal_id=${goalId}&completed=${completed}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    const goalItem = document.querySelector(`[data-goal-id="${goalId}"]`).closest('.goal-item');
+                    if (completed) {
+                        goalItem.classList.add('completed');
+                    } else {
+                        goalItem.classList.remove('completed');
+                    }
+                    
+                    // Update progress bar
+                    updateProgressBar();
+                } else {
+                    console.error('Failed to update goal');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating goal:', error);
+            });
+        }
+
+        function updateProgressBar() {
+            const checkboxes = document.querySelectorAll('.goal-checkbox');
+            const checkedBoxes = document.querySelectorAll('.goal-checkbox:checked');
+            const percentage = (checkedBoxes.length / checkboxes.length) * 100;
+            
+            const progressBar = document.querySelector('.progress-bar');
+            const progressPercentage = document.querySelector('.progress-percentage');
+            
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+            }
+            if (progressPercentage) {
+                progressPercentage.textContent = Math.round(percentage) + '%';
+            }
+        }
+
+        // Initialize progress bar on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgressBar();
+            initializeNutritionChart();
+            loadMealCompletions();
+            // Small delay to ensure DOM is fully loaded before calculating progress
+            setTimeout(function() {
+                updateNutritionProgress();
+            }, 100);
+        });
+
+        // Load previously saved meal completions
+        function loadMealCompletions() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            fetch('/meal/completion?date=' + today)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.completed_meals) {
+                        data.completed_meals.forEach(mealType => {
+                            const checkbox = document.querySelector(`input[data-meal-type="${mealType}"]`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                        updateNutritionProgress();
+                    }
+                })
+                .catch(error => {
+                    console.log('No previous meal data found or error loading:', error);
+                });
+        }
+
+        // Nutrition Progress Functions
+        function updateNutritionProgress() {
+            const checkboxes = document.querySelectorAll('.meal-eaten-checkbox');
+            let totalCalories = 0;
+            let totalCarbs = 0;
+            let totalProtein = 0;
+            let totalFat = 0;
+            let totalFiber = 0;
+            let mealsCompleted = 0;
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    totalCalories += parseInt(checkbox.dataset.calories) || 0;
+                    totalCarbs += parseInt(checkbox.dataset.carbs) || 0;
+                    totalProtein += parseInt(checkbox.dataset.protein) || 0;
+                    totalFat += parseInt(checkbox.dataset.fat) || 0;
+                    totalFiber += parseInt(checkbox.dataset.fiber) || 0;
+                    mealsCompleted++;
+                }
+            });
+
+            // Update nutrition bars
+            updateNutritionBar('carbsProgress', 'carbsValue', totalCarbs, parseInt(document.getElementById('carbsTarget').textContent));
+            updateNutritionBar('proteinProgress', 'proteinValue', totalProtein, parseInt(document.getElementById('proteinTarget').textContent));
+            updateNutritionBar('fatProgress', 'fatValue', totalFat, parseInt(document.getElementById('fatTarget').textContent));
+            updateNutritionBar('fiberProgress', 'fiberValue', totalFiber, 25);
+
+            // Update calories donut chart
+            updateCaloriesChart(totalCalories);
+
+            // Update summary
+            document.getElementById('totalCalories').textContent = totalCalories;
+            document.getElementById('mealsCompleted').textContent = mealsCompleted;
+            document.getElementById('overallProgress').textContent = Math.round((mealsCompleted / checkboxes.length) * 100) + '%';
+
+            // Save meal completion to backend
+            saveMealCompletion();
+        }
+
+        function updateNutritionBar(progressId, valueId, currentValue, targetValue) {
+            const progressBar = document.getElementById(progressId);
+            const valueElement = document.getElementById(valueId);
+            
+            console.log(`Updating ${progressId}: ${currentValue}/${targetValue}`); // Debug log
+            
+            const percentage = Math.min((currentValue / targetValue) * 100, 100);
+            
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+                progressBar.classList.toggle('complete', percentage >= 100);
+                console.log(`Progress bar ${progressId} width set to ${percentage}%`); // Debug log
+            } else {
+                console.error(`Progress bar element ${progressId} not found`);
+            }
+            
+            if (valueElement) {
+                valueElement.textContent = currentValue;
+                console.log(`Value element ${valueId} updated to ${currentValue}`); // Debug log
+            } else {
+                console.error(`Value element ${valueId} not found`);
+            }
+        }
+
+        function initializeNutritionChart() {
+            const canvas = document.getElementById('caloriesChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = 120;
+            canvas.height = 120;
+            
+            // Get target calories from the daily_calories template variable
+            const targetCalories = {% if daily_calories %}{{ daily_calories }}{% else %}2000{% endif %};
+            
+            // Initial empty donut
+            drawDonutChart(ctx, 0, targetCalories);
+        }
+
+        function updateCaloriesChart(currentCalories) {
+            const canvas = document.getElementById('caloriesChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const targetCalories = {% if daily_calories %}{{ daily_calories }}{% else %}2000{% endif %};
+            
+            document.getElementById('caloriesValue').textContent = currentCalories;
+            drawDonutChart(ctx, currentCalories, targetCalories);
+        }
+
+        function drawDonutChart(ctx, current, target) {
+            const centerX = 60;
+            const centerY = 60;
+            const radius = 45;
+            const lineWidth = 8;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 120, 120);
+            
+            // Background circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#D6C0B3';
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+            
+            // Progress arc
+            const progressAngle = (current / target) * 2 * Math.PI;
+            if (progressAngle > 0) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + progressAngle);
+                ctx.strokeStyle = current >= target ? '#AB886D' : '#493628';
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
+        }
+
+        function saveMealCompletion() {
+            const completedMeals = [];
+            document.querySelectorAll('.meal-eaten-checkbox:checked').forEach(checkbox => {
+                completedMeals.push(checkbox.dataset.mealType);
+            });
+
+            // Save to backend
+            fetch('/meal/completion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    completed_meals: completedMeals,
+                    date: new Date().toISOString().split('T')[0]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Failed to save meal completion');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving meal completion:', error);
+            });
+        }
+
+        // Test function to manually trigger progress updates (for debugging)
+        function testProgressUpdate() {
+            console.log('Testing progress update...');
+            updateNutritionProgress();
+        }
+
+        // Make functions available globally for debugging
+        window.testProgressUpdate = testProgressUpdate;
+        window.updateNutritionProgress = updateNutritionProgress;
+    </script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Home Workout Planner — Timer</title>
+<style>
+  :root{
+    --bg1:#0f1724; --accent1:#8a6bff; --accent2:#7fe9c7; --text:#e6eef8; --muted:#9fb0c8; --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:Inter, system-ui, -apple-system,"Segoe UI",Roboto,Arial;
+    background: linear-gradient(180deg,#071022 0%, #0f1724 60%);color:var(--text);
+    -webkit-font-smoothing:antialiased;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .app{width:100%;max-width:1100px;border-radius:20px;padding:22px;background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 10px 40px rgba(5,8,20,0.6);display:grid;gap:18px;grid-template-columns:360px 1fr;}
+  .left{background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:var(--radius);display:flex;flex-direction:column;gap:12px;min-height:320px;}
+  .title{display:flex;align-items:center;gap:12px}
+  .logo{width:56px;height:56px;border-radius:12px;background: linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#04202a;font-size:18px}
+  .subtitle{color:var(--muted);font-size:13px}
+  .weekLabel{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .weekLabel button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:6px 10px;border-radius:10px;cursor:pointer}
+  .progressWrap{display:flex;gap:14px;align-items:center}
+  .ring{width:110px;height:110px;display:grid;place-items:center;border-radius:999px;background: conic-gradient(var(--accent2) 0% , rgba(255,255,255,0.04) 0%);box-shadow: 0 12px 30px rgba(120,80,255,0.06)}
+  .small{color:var(--muted);font-size:13px}
+  .btn{ background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.05); color:var(--text); padding:8px 10px;border-radius:10px; cursor:pointer; font-weight:600;}
+  .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--muted)}
+  .btn.danger{background:linear-gradient(90deg,#ff6b6b22,#ff6b6b11);color:#ffdcdc;border:1px solid rgba(255,80,80,0.08)}
+  .right{padding:16px;border-radius:var(--radius);background: linear-gradient(180deg, rgba(255,255,255,0.008), rgba(255,255,255,0.01));}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .day{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+  .thumb{width:84px;height:84px;border-radius:10px;flex-shrink:0;background:#111;background-size:cover;background-position:center;box-shadow:0 8px 30px rgba(10,10,10,0.5)}
+  .meta{flex:1}
+  .meta h3{margin:0;font-size:15px}
+  .meta p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  .toggle{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .checkBtn{width:44px;height:44px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-size:18px;color:transparent;background:linear-gradient(90deg,#7fe9c7,#8a6bff);display:grid;place-items:center;box-shadow:0 8px 20px rgba(80,60,160,0.12);transition:transform .12s}
+  .checkBtn.done{background:linear-gradient(90deg,#3ee08d,#7fe9c7);color:#04202a}
+  .dayControls{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .dayCheckbox{width:18px;height:18px}
+  .cardDuration{color:var(--muted);font-size:13px;margin-top:6px}
+  .infoSmall{color:var(--muted);font-size:12px;margin-top:6px}
+
+  /* modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:60;padding:16px;}
+  .modal.show{display:flex}
+  .modalCard{max-width:920px;width:100%;border-radius:12px;overflow:hidden;background:#071421;padding:14px;border:1px solid rgba(255,255,255,0.03)}
+  /* workout modal layout */
+  .workoutHeader{display:flex;gap:12px;align-items:center}
+  .workoutThumb{width:120px;height:120px;border-radius:10px;background:#111;background-size:cover;background-position:center}
+  .workoutMeta{flex:1}
+  .timerBig{font-size:28px;font-weight:700}
+  .controlsRow{display:flex;gap:8px;margin-top:10px}
+  .exerciseList{margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto;padding-right:6px}
+  .exerciseItem{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.02)}
+  .exerciseItem.active{box-shadow:0 10px 30px rgba(0,0,0,0.6);border-color:rgba(127,233,199,0.2)}
+  .progressBar{height:8px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden;margin-top:8px}
+  .progressBarInner{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent1));border-radius:8px}
+  .modalFooter{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  .smallMuted{color:var(--muted);font-size:13px}
+
+  @media (max-width:900px){ .app{grid-template-columns:1fr} .grid{grid-template-columns:1fr} .workoutThumb{width:92px;height:92px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="left">
+    <div class="title">
+      <div class="logo">HW</div>
+      <div>
+        <h2>Home Workout Planner</h2>
+        <div class="subtitle">Tap a day → follow exercises with timers</div>
+      </div>
+    </div>
+    <div class="weekLabel">
+      <div>
+        <strong id="weekRange">Week</strong>
+        <div class="small" id="weekInfo"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn secondary" id="prevWeek">&larr;</button>
+        <button class="btn secondary" id="nextWeek">&rarr;</button>
+      </div>
+    </div>
+
+    <div class="progressWrap">
+      <div class="ring" id="ring"><div><div class="num" id="count">0</div><div class="small">Completed</div></div></div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-weight:700" id="percentText">0%</div><div class="small">of 7 days</div></div>
+          <div style="text-align:right"><div class="small">Consistency</div><div style="font-weight:700" id="streak">0</div><div class="small">days</div></div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="controlsRow">
+          <button class="btn" id="randomize">Randomize Plan</button>
+          <button class="btn" id="shareBtn">Share</button>
+          <button class="btn danger" id="resetWeek">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:auto">
+      <div class="small">Tip: Use the timer controls in the workout modal. Session elapsed and remaining time shown there. Use the checkbox to schedule a day in your calendar.</div>
+      <footer style="margin-top:10px;color:var(--muted);font-size:13px;text-align:center">Made with ❤ — Home workouts</footer>
+    </div>
+  </div>
+
+  <div class="right">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h3 style="margin:0">This week's home workouts (7 days)</h3>
+      <div class="small" id="updateNote">Auto-saved locally</div>
+    </div>
+    <div class="grid" id="daysGrid"></div>
+  </div>
+</div>
+
+<!-- Workout Modal -->
+<div class="modal" id="modal">
+  <div class="modalCard" role="dialog" aria-modal="true">
+    <div class="workoutHeader">
+      <div class="workoutThumb" id="modalThumb"></div>
+      <div class="workoutMeta">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <h3 id="modalTitle" style="margin:0">Day X · Title</h3>
+            <div class="smallMuted" id="modalSubtitle">Subtitle</div>
+          </div>
+          <div style="text-align:right">
+            <div class="smallMuted">Planned total</div>
+            <div class="timerBig" id="totalTime">00:00</div>
+            <div class="smallMuted" style="margin-top:6px">Session elapsed</div>
+            <div class="timerBig" id="sessionElapsed">00:00</div>
+            <div class="smallMuted" style="margin-top:6px">Remaining</div>
+            <div class="timerBig" id="sessionRemaining">00:00</div>
+          </div>
+        </div>
+
+        <div class="controlsRow">
+          <button class="btn" id="startPauseBtn">Start</button>
+          <button class="btn secondary" id="prevBtn">Prev</button>
+          <button class="btn secondary" id="nextBtn">Next</button>
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="markCompleteBtn">Mark Complete</button>
+        </div>
+
+        <div style="margin-top:8px">
+          <div class="smallMuted">Current Exercise</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700" id="currentExercise">—</div>
+            <div style="font-weight:700" id="currentTimer">00:00</div>
+          </div>
+          <div class="progressBar"><div class="progressBarInner" id="progressInner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="exerciseList" id="exerciseList"></div>
+
+    <div class="modalFooter">
+      <div class="smallMuted" id="modalFooterText">Auto-advance through exercises. Press Start to begin session timer.</div>
+      <div><button class="btn secondary" id="closeModalBtn">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Storage & plan structure:
+ storage[weekKey] = { plan: [ {title, subtitle, img, exercises: [{name,duration}] } ... ], completed: [bool..], scheduled: [bool..] }
+*/
+
+const defaultPlan = [
+  { title: "Bodyweight HIIT", subtitle: "No equipment, high intensity", img: "", exercises: [
+    {name:"Warm-up (march)", duration:60}, {name:"Jumping Jacks", duration:45}, {name:"Bodyweight Squats", duration:60}, {name:"Mountain Climbers", duration:45}, {name:"Cool-down stretch", duration:60}
+  ]},
+  { title: "Upper Body (No Weights)", subtitle: "Push & plank work", img:"", exercises:[
+    {name:"Arm circles", duration:30},{name:"Push-ups", duration:45},{name:"Incline Push-ups", duration:45},{name:"Plank", duration:60},{name:"Shoulder taps", duration:45}
+  ]},
+  { title: "Mobility & Yoga", subtitle: "Flexibility focus", img:"", exercises:[
+    {name:"Sun Salutation", duration:120},{name:"Hip Openers", duration:90},{name:"Cat-Cow", duration:60},{name:"Seated Twist", duration:60}
+  ]},
+  { title: "Core & Balance", subtitle: "Abs and control", img:"", exercises:[
+    {name:"Deadbug", duration:60},{name:"Russian Twist", duration:60},{name:"Side Plank (each)", duration:60},{name:"Bicycle Crunch", duration:60}
+  ]},
+  { title: "Lower Body Blast", subtitle: "Leg strength", img:"", exercises:[
+    {name:"Lunges", duration:60},{name:"Glute Bridge", duration:60},{name:"Calf Raises", duration:45},{name:"Wall Sit", duration:60}
+  ]},
+  { title: "Active Recovery", subtitle: "Light movement", img:"", exercises:[
+    {name:"Brisk Walk (in place)", duration:180},{name:"Stretching", duration:240}
+  ]},
+  { title: "Breathing & Stretch", subtitle: "Cooldown", img:"", exercises:[
+    {name:"Deep Breathing", duration:120},{name:"Neck Stretch", duration:60},{name:"Full Body Stretch", duration:180}
+  ]}
+];
+
+function getMonday(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1) - day; // shift so Monday is start
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function toKey(date){ return getMonday(date).toISOString().slice(0,10); }
+const STORAGE_KEY = "home_workout_planner_v1";
+function loadStorage(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch(e){ return {}; } }
+function saveStorage(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
+
+let weekDate = getMonday(); let weekKey = toKey(weekDate);
+let storage = loadStorage();
+if(!storage[weekKey]) { storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false)}; saveStorage(storage); }
+
+// UI refs
+const daysGrid = document.getElementById('daysGrid');
+const countEl = document.getElementById('count');
+const percentText = document.getElementById('percentText');
+const ring = document.getElementById('ring');
+const weekRange = document.getElementById('weekRange');
+const weekInfo = document.getElementById('weekInfo');
+const prevWeek = document.getElementById('prevWeek');
+const nextWeek = document.getElementById('nextWeek');
+const resetWeek = document.getElementById('resetWeek');
+const randomizeBtn = document.getElementById('randomize');
+const shareBtn = document.getElementById('shareBtn');
+const updateNote = document.getElementById('updateNote');
+const streakEl = document.getElementById('streak');
+
+// modal refs & timer state
+const modal = document.getElementById('modal');
+const modalThumb = document.getElementById('modalThumb');
+const modalTitle = document.getElementById('modalTitle');
+const modalSubtitle = document.getElementById('modalSubtitle');
+const totalTimeEl = document.getElementById('totalTime');
+const sessionElapsedEl = document.getElementById('sessionElapsed');
+const sessionRemainingEl = document.getElementById('sessionRemaining');
+const startPauseBtn = document.getElementById('startPauseBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const resetBtn = document.getElementById('resetBtn');
+const markCompleteBtn = document.getElementById('markCompleteBtn');
+const exerciseListEl = document.getElementById('exerciseList');
+const currentExerciseEl = document.getElementById('currentExercise');
+const currentTimerEl = document.getElementById('currentTimer');
+const progressInner = document.getElementById('progressInner');
+const closeModalBtn = document.getElementById('closeModalBtn');
+
+let currentDayIndex = null;
+let currentExercises = [];
+let currentIndex = 0;
+let remaining = 0; // seconds remaining for current exercise
+let timerInterval = null;
+let isRunning = false;
+let totalSeconds = 0;
+let elapsedSeconds = 0;
+
+// helpers
+function formatRange(d){
+  const start = new Date(d);
+  const end = new Date(d);
+  end.setDate(end.getDate()+6);
+  const opts = {month:'short', day:'numeric'};
+  return `${start.toLocaleDateString(undefined,opts)} - ${end.toLocaleDateString(undefined,opts)}`;
+}
+function secToMMSS(s){ const m = Math.floor(s/60); const sec = s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+function secToHHMMSS(s){ const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60); const sec = s%60; if(h>0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+
+function buildGrid(){
+  daysGrid.innerHTML = "";
+  storage = loadStorage();
+  if(!storage[weekKey]) { storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false)}; saveStorage(storage); }
+  const plan = storage[weekKey].plan;
+  const completed = storage[weekKey].completed;
+  const scheduled = storage[weekKey].scheduled || Array(7).fill(false);
+  plan.forEach((p,i)=>{
+    const card = document.createElement('div'); card.className='day';
+    const thumb = document.createElement('div'); thumb.className='thumb';
+    thumb.style.backgroundImage = `url(${p.img || placeholderFor(i)})`;
+    const meta = document.createElement('div'); meta.className='meta';
+    const h = document.createElement('h3'); h.innerText = `Day ${i+1} · ${p.title || 'Untitled'}`;
+    const sp = document.createElement('p'); sp.innerText = p.subtitle || '';
+
+    // total planned duration for the day's workout
+    const dayTotal = (p.exercises || []).reduce((s,e)=>s + (parseInt(e.duration)||0),0);
+    const dur = document.createElement('div'); dur.className='cardDuration'; dur.innerText = `Planned: ${secToMMSS(dayTotal)}`;
+
+    const small = document.createElement('div'); small.className='infoSmall'; small.innerText = 'Tap to open workout';
+    meta.appendChild(h); meta.appendChild(sp); meta.appendChild(dur); meta.appendChild(small);
+
+    const controls = document.createElement('div'); controls.className='dayControls';
+    // calendar checkbox for scheduling this day
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.className='dayCheckbox'; cb.checked = scheduled[i];
+    cb.title = 'Schedule for calendar';
+    cb.addEventListener('click', (e)=>{ e.stopPropagation(); toggleScheduled(i, cb); });
+
+    // existing complete button (keeps legacy quick mark)
+    const btn = document.createElement('button'); btn.className='checkBtn' + (completed[i] ? ' done':'' ); btn.innerText = completed[i] ? '✓' : '+';
+    btn.onclick = (e)=>{ e.stopPropagation(); toggleComplete(i,btn); };
+
+    controls.appendChild(cb); controls.appendChild(btn);
+
+    card.appendChild(thumb); card.appendChild(meta); card.appendChild(controls);
+    card.onclick = ()=> openWorkoutModal(i);
+    daysGrid.appendChild(card);
+  });
+  refreshSummary();
+}
+
+function placeholderFor(i){
+  const colors=['#8a6bff','#7fe9c7','#b67aff','#6de0b4','#9ad0ff','#ffd19a','#f4a1ff'];
+  const c = colors[i%colors.length].replace('#','');
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23${c}'/><text x='50%' y='50%' alignment-baseline='middle' text-anchor='middle' font-size='22' fill='white'>Day ${i+1}</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function toggleScheduled(i, cbEl){
+  storage = loadStorage();
+  if(!storage[weekKey]) storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false) };
+  storage[weekKey].scheduled = storage[weekKey].scheduled || Array(7).fill(false);
+  storage[weekKey].scheduled[i] = !!cbEl.checked;
+  saveStorage(storage);
+  flashSaved(storage[weekKey].scheduled[i] ? 'Scheduled ✓' : 'Removed from schedule');
+}
+
+function toggleComplete(i, btnEl){
+  storage = loadStorage();
+  if(!storage[weekKey]) storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false) };
+  storage[weekKey].completed[i] = !storage[weekKey].completed[i];
+  saveStorage(storage);
+  btnEl.classList.toggle('done', storage[weekKey].completed[i]);
+  btnEl.innerText = storage[weekKey].completed[i] ? '✓' : '+';
+  refreshSummary();
+}
+
+function refreshSummary(){
+  storage = loadStorage();
+  const arr = (storage[weekKey] && storage[weekKey].completed) ? storage[weekKey].completed : Array(7).fill(false);
+  const doneCount = arr.filter(Boolean).length; const percent = Math.round((doneCount/7)*100);
+  countEl.innerText = doneCount; percentText.innerText = `${percent}%`;
+  ring.style.background = `conic-gradient(var(--accent2) ${percent}%, rgba(255,255,255,0.04) ${percent}% )`;
+  let streak=0; for(let i=0;i<7;i++){ if(arr[i]) streak++; else break; } streakEl.innerText=streak;
+  weekRange.innerText = formatRange(weekDate); weekInfo.innerText = `Week starting ${weekKey}`;
+}
+
+function flashSaved(msg='Saved ✓'){ updateNote.innerText = msg; setTimeout(()=>updateNote.innerText='Auto-saved locally',900); }
+
+// Navigation
+prevWeek.addEventListener('click', ()=>{
+  weekDate.setDate(weekDate.getDate() - 7); weekKey = toKey(weekDate); storage = loadStorage();
+  if(!storage[weekKey]) storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false)}; saveStorage(storage); buildGrid();
+});
+nextWeek.addEventListener('click', ()=>{
+  weekDate.setDate(weekDate.getDate() + 7); weekKey = toKey(weekDate); storage = loadStorage();
+  if(!storage[weekKey]) storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false)}; saveStorage(storage); buildGrid();
+});
+resetWeek.addEventListener('click', ()=>{ if(!confirm('Reset this week?')) return; storage = loadStorage(); storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false) }; saveStorage(storage); buildGrid(); });
+randomizeBtn.addEventListener('click', ()=>{ if(!confirm('Randomize this week?')) return; const p=JSON.parse(JSON.stringify(defaultPlan)); for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]];} storage=loadStorage(); if(!storage[weekKey]) storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false)}; storage[weekKey].plan = p; saveStorage(storage); buildGrid(); });
+shareBtn.addEventListener('click', ()=>{ const st=loadStorage()[weekKey]||{}; const arr=(st.completed)? st.completed : Array(7).fill(false); const scheduled=(st.scheduled)? st.scheduled : Array(7).fill(false); const doneCount = arr.filter(Boolean).length; const schedCount = scheduled.filter(Boolean).length; const text = `Week ${weekKey}: ${doneCount}/7 done, ${schedCount} scheduled.`; navigator.clipboard?.writeText(text).then(()=>alert('Copied: '+text)).catch(()=>alert(text)); });
+
+// WORKOUT MODAL & TIMER
+function openWorkoutModal(dayIndex){
+  storage = loadStorage();
+  const plan = storage[weekKey] && storage[weekKey].plan ? storage[weekKey].plan : defaultPlan;
+  const day = plan[dayIndex] || {title:'Untitled', subtitle:'', img:'', exercises:[]};
+  currentDayIndex = dayIndex;
+  currentExercises = (day.exercises && day.exercises.length) ? JSON.parse(JSON.stringify(day.exercises)) : [];
+  currentIndex = 0; elapsedSeconds = 0;
+  totalSeconds = currentExercises.reduce((s,e)=>s + (parseInt(e.duration)||0),0);
+  remaining = currentExercises[0] ? (parseInt(currentExercises[0].duration)||0) : 0;
+  // UI populate
+  modalThumb.style.backgroundImage = `url(${day.img || placeholderFor(dayIndex)})`;
+  modalTitle.innerText = `Day ${dayIndex+1} · ${day.title || 'Untitled'}`;
+  modalSubtitle.innerText = day.subtitle || '';
+  totalTimeEl.innerText = secToMMSS(totalSeconds);
+  sessionElapsedEl.innerText = secToHHMMSS(elapsedSeconds);
+  sessionRemainingEl.innerText = secToHHMMSS(Math.max(0, totalSeconds - elapsedSeconds));
+  buildExerciseList();
+  updateTimerUI();
+  isRunning = false; clearInterval(timerInterval); startPauseBtn.innerText = 'Start';
+  modal.classList.add('show');
+}
+
+function buildExerciseList(){
+  exerciseListEl.innerHTML = '';
+  if(!currentExercises.length){ exerciseListEl.innerHTML = '<div class="smallMuted">No exercises defined for this day.</div>'; return; }
+  currentExercises.forEach((ex,i)=>{
+    const item = document.createElement('div'); item.className='exerciseItem' + (i===currentIndex ? ' active':'');
+    const left = document.createElement('div');
+    left.innerHTML = `<div style="font-weight:700">${i+1}. ${ex.name}</div><div class="smallMuted">${ex.duration}s</div>`;
+    const right = document.createElement('div'); right.style.textAlign='right'; right.innerHTML = `<div style="font-weight:700">${secToMMSS(ex.duration)}</div>`;
+    item.appendChild(left); item.appendChild(right);
+    item.onclick = ()=> { // jump to this exercise
+      jumpToExercise(i);
+    };
+    exerciseListEl.appendChild(item);
+  });
+  updateProgressBar();
+}
+
+function updateTimerUI(){
+  currentExerciseEl.innerText = currentExercises[currentIndex] ? currentExercises[currentIndex].name : '—';
+  currentTimerEl.innerText = secToMMSS(remaining || 0);
+  sessionElapsedEl.innerText = secToHHMMSS(elapsedSeconds);
+  sessionRemainingEl.innerText = secToHHMMSS(Math.max(0, totalSeconds - elapsedSeconds));
+  updateExerciseHighlights();
+  updateProgressBar();
+}
+
+function updateExerciseHighlights(){
+  const nodes = Array.from(exerciseListEl.children);
+  nodes.forEach((n,idx)=> n.classList.toggle('active', idx===currentIndex));
+}
+
+function updateProgressBar(){
+  const percent = totalSeconds ? Math.round((elapsedSeconds/totalSeconds)*100) : 0;
+  progressInner.style.width = percent + '%';
+}
+
+function tick(){
+  if(remaining > 0){
+    remaining--; elapsedSeconds++;
+    updateTimerUI();
+  } else {
+    // finish current exercise and move to next if exists
+    if(currentIndex < currentExercises.length - 1){
+      currentIndex++; remaining = parseInt(currentExercises[currentIndex].duration) || 0;
+      updateTimerUI();
+    } else {
+      // finished all
+      stopTimer();
+      markDayCompleteFromModal(true);
+    }
+  }
+}
+
+function startTimer(){
+  if(isRunning) return;
+  if(!currentExercises.length) return;
+  isRunning = true; startPauseBtn.innerText = 'Pause';
+  timerInterval = setInterval(()=> tick(), 1000);
+}
+
+function pauseTimer(){ if(!isRunning) return; isRunning = false; startPauseBtn.innerText = 'Start'; clearInterval(timerInterval); }
+
+function stopTimer(){ isRunning = false; clearInterval(timerInterval); startPauseBtn.innerText = 'Start'; }
+
+function resetTimer(){
+  stopTimer();
+  currentIndex = 0;
+  elapsedSeconds = 0;
+  totalSeconds = currentExercises.reduce((s,e)=>s + (parseInt(e.duration)||0),0);
+  remaining = currentExercises[0] ? (parseInt(currentExercises[0].duration)||0) : 0;
+  sessionElapsedEl.innerText = secToHHMMSS(elapsedSeconds);
+  sessionRemainingEl.innerText = secToHHMMSS(Math.max(0, totalSeconds - elapsedSeconds));
+  buildExerciseList();
+  updateTimerUI();
+}
+
+function nextExercise(){
+  if(currentIndex < currentExercises.length - 1){
+    currentIndex++; remaining = parseInt(currentExercises[currentIndex].duration)||0; updateTimerUI();
+  }
+}
+function prevExercise(){
+  if(currentIndex > 0){ currentIndex--; remaining = parseInt(currentExercises[currentIndex].duration)||0; updateTimerUI(); }
+}
+function jumpToExercise(i){
+  if(i<0 || i>=currentExercises.length) return;
+  // adjust elapsedSeconds so progress bar stays consistent: compute elapsed before this exercise
+  const before = currentExercises.slice(0,i).reduce((s,e)=>s + (parseInt(e.duration)||0),0);
+  currentIndex = i; remaining = parseInt(currentExercises[currentIndex].duration)||0; elapsedSeconds = before; updateTimerUI();
+}
+
+function markDayCompleteFromModal(auto=false){
+  storage = loadStorage();
+  if(!storage[weekKey]) storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false) };
+  storage[weekKey].completed[currentDayIndex] = true;
+  saveStorage(storage);
+  flashSaved(auto ? 'Completed! ✓' : 'Marked Complete ✓');
+  buildGrid();
+  stopTimer();
+}
+
+startPauseBtn.addEventListener('click', ()=>{
+  if(!isRunning) startTimer(); else pauseTimer();
+});
+nextBtn.addEventListener('click', ()=>{ nextExercise(); });
+prevBtn.addEventListener('click', ()=>{ prevExercise(); });
+resetBtn.addEventListener('click', ()=>{ resetTimer(); });
+markCompleteBtn.addEventListener('click', ()=>{ if(confirm('Mark this day complete?')) markDayCompleteFromModal(false); });
+
+closeModalBtn.addEventListener('click', ()=>{ modal.classList.remove('show'); stopTimer(); });
+
+// when clicking outside modal card close
+modal.addEventListener('click', (e)=> { if(e.target===modal) { modal.classList.remove('show'); stopTimer(); } });
+
+// Initialize
+(function init(){
+  storage = loadStorage();
+  if(!storage[weekKey]) { storage[weekKey] = { plan: JSON.parse(JSON.stringify(defaultPlan)), completed: Array(7).fill(false), scheduled: Array(7).fill(false) }; saveStorage(storage); }
+  // ensure each plan day has exercises field
+  if(storage[weekKey].plan){
+    for(let i=0;i<7;i++){
+      if(!storage[weekKey].plan[i]) storage[weekKey].plan[i] = defaultPlan[i] || {title:'',subtitle:'',img:'',exercises:[]};
+      if(!storage[weekKey].plan[i].exercises) storage[weekKey].plan[i].exercises = defaultPlan[i] ? (defaultPlan[i].exercises || []) : [];
+    }
+  }
+  buildGrid();
+})();
+</script>
+</body>
+</html>

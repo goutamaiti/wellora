@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breathe - Wellora Health Journal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Righteous&family=Fredoka:wght@300;400;500;600;700&family=Comfortaa:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--primary-bg);
+            font-family: "Pacifico", cursive;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .breathe-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 20px;
+            background: linear-gradient(135deg, var(--earth-light) 0%, var(--earth-sage) 50%, var(--earth-brown) 100%);
+        }
+
+        .breathe-title {
+            font-family: "Pacifico", cursive;
+            font-size: 3rem;
+            color: var(--earth-dark);
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .breathe-instructions {
+            font-family: "Comfortaa", sans-serif;
+            font-size: 1.2rem;
+            color: var(--earth-dark);
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .circle {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, var(--earth-sage) 30%, var(--earth-brown) 80%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: breathe 19s infinite ease-in-out;
+            box-shadow: 0 0 80px rgba(171, 136, 109, 0.6);
+            transition: transform 2s ease-in-out;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes breathe {
+            0%   { transform: scale(1); }       /* Start */
+            21%  { transform: scale(1.4); }     /* Inhale (4s) */
+            58%  { transform: scale(1.4); }     /* Hold (7s) */
+            100% { transform: scale(1); }       /* Exhale (8s) */
+        }
+
+        #text {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--earth-light);
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+            font-family: "Pacifico", cursive;
+        }
+
+        .breathe-benefits {
+            font-family: "Quicksand", sans-serif;
+            max-width: 800px;
+            text-align: center;
+            color: var(--earth-dark);
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-top: 2rem;
+        }
+
+        .breathe-benefits h3 {
+            font-family: "Pacifico", cursive;
+            margin-bottom: 1rem;
+            color: var(--earth-dark);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .benefit-item {
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .breathe-title {
+                font-size: 2rem;
+            }
+            
+            .circle {
+                width: 200px;
+                height: 200px;
+            }
+            
+            #text {
+                font-size: 1.5rem;
+            }
+            
+            .breathe-instructions {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="diary-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('landing') }}" class="logo">My Health Journal</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('landing') }}">Home</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('calculator') }}">Calculator</a></li>
+                    <li><a href="{{ url_for('breathe') }}" class="active">Breathe</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('logout') }}">Logout ({{ session.username }})</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="breathe-container">
+        
+
+        <div class="circle">
+            <div id="text">Inhale</div>
+        </div>
+
+    </div>
+
+    <script>
+        const text = document.getElementById('text');
+
+        function breatheCycle() {
+            text.innerText = 'Inhale';
+            setTimeout(() => {
+                text.innerText = 'Hold';
+                setTimeout(() => {
+                    text.innerText = 'Exhale';
+                }, 7000); // Hold for 7s
+            }, 4000); // Inhale for 4s
+        }
+
+        breatheCycle();
+        setInterval(breatheCycle, 19000); // Total cycle: 19s
+    </script>
+</body>
+</html>

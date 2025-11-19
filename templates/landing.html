@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellora - Your Personal Health Journal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Indie+Flower&family=Amatic+SC:wght@400;700&family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="diary-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('landing') }}" class="logo">My Health Journal</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('landing') }}" class="active">Home</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('calculator') }}">Calculator</a></li>
+                    <li><a href="{{ url_for('breathe') }}">Breathe</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('logout') }}">Logout ({{ session.username }})</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-diary">
+        <div class="diary-page">
+            <div class="page-header">
+                <div class="date-stamp">Today's Entry</div>
+                <div class="page-line"></div>
+            </div>
+            
+            <div class="diary-content">
+                <h1 class="diary-title">Welcome to Your Personal Health Journal</h1>
+                
+                <div class="diary-entry">
+                    <p class="entry-text">
+                        Dear Health Explorer,
+                    </p>
+                    <p class="entry-text">
+                        Today marks the beginning of your wellness journey. This digital diary will help you 
+                        discover your body's unique metabolic needs and guide you through the rich culinary 
+                        traditions of India.
+                    </p>
+                    <p class="entry-text">
+                        Every person's body tells a different story. Your Basal Metabolic Rate is like your 
+                        body's personal signature - unique to you, influenced by your age, gender, height, 
+                        and weight. Understanding this helps you make informed decisions about nutrition 
+                        and health.
+                    </p>
+                </div>
+
+                <div class="diary-features">
+                    <div class="feature-note">
+                        <div class="note-header">What You'll Discover:</div>
+                        <ul class="note-list">
+                            <li>Your personal metabolic rate calculation</li>
+                            <li>Customized meal recommendations from 29 Indian states</li>
+                            <li>Dietary preferences tailored to your lifestyle</li>
+                            <li>Science-based nutrition guidance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="diary-actions">
+                    <a href="/calculator" class="diary-button primary">Start Your Health Journey</a>
+                    <a href="/about" class="diary-button secondary">Learn More About This Project</a>
+                </div>
+            </div>
+
+            <div class="page-footer">
+                <div class="page-line"></div>
+                <div class="signature">- Your Wellness Companion</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats Section -->
+    <section class="stats-diary">
+        <div class="stats-page">
+            <h2 class="stats-title">By the Numbers</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">2000+</div>
+                    <div class="stat-label">Users Helped</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">29</div>
+                    <div class="stat-label">Indian States</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">AI</div>
+                    <div class="stat-label">Powered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">Free</div>
+                    <div class="stat-label">Always</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="diary-footer">
+        <div class="footer-page">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>Wellora</h3>
+                    <p>Your personal health journal, powered by science and tradition.</p>
+                </div>
+                <div class="footer-note">
+                    <p>Made with care for your wellness journey.</p>
+                    <p class="copyright">© 2024 Wellora Health Journal</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
