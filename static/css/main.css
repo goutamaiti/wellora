@@ -204,6 +204,37 @@ p {
     width: 100%;
 }
 
+/* Hamburger Menu */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: var(--ink-medium);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
 /* Diary Page Layout */
 .diary-page {
     max-width: 800px;
@@ -823,19 +854,122 @@ p {
     margin-top: 5rem;
 }
 
-/* Responsive Design */
+/* Submit Button & Form Controls */
+.submit-btn {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: var(--rich-brown);
+    color: var(--cream-white);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.submit-btn:hover {
+    background: var(--dark-brown);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(73, 54, 40, 0.3);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* CTA Buttons */
+.cta-button {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background: var(--rich-brown);
+    color: var(--cream-white);
+    border: none;
+    border-radius: 25px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.cta-button:hover {
+    background: var(--dark-brown);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(168, 192, 182, 0.3);
+}
+
+/* Touch-friendly input sizing */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+}
+
+/* Responsive Design - Tablet (768px and below) */
 @media (max-width: 768px) {
+    body {
+        font-size: 15px;
+    }
+    
     .diary-page {
         margin: 5rem 1rem 1rem;
-        padding: 2rem;
+        padding: 1.5rem;
     }
     
     .nav-container {
         padding: 0 1rem;
     }
     
+    .hamburger {
+        display: flex;
+    }
+    
     .nav-links {
-        gap: 1.5rem;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0;
+        background: rgba(228, 224, 225, 0.98);
+        padding: 1rem 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        box-shadow: 0 4px 10px rgba(73, 54, 40, 0.1);
+    }
+    
+    .nav-links.active {
+        max-height: 500px;
+    }
+    
+    .nav-links a {
+        display: block;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(171, 136, 109, 0.2);
+        font-size: 1rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .nav-links a::after {
+        display: none;
     }
     
     .form-row {
@@ -853,36 +987,254 @@ p {
     
     .footer-note {
         text-align: center;
+        font-size: 0.9rem;
     }
     
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
     }
     
     .creator-card {
         grid-template-columns: 1fr;
     }
+    
+    body {
+        padding-top: 70px;
+    }
+    
+    .diary-title {
+        font-size: 2.5rem;
+    }
+    
+    .logo {
+        font-size: 1.8rem;
+    }
+    
+    /* Form improvements for tablets */
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    textarea,
+    select {
+        font-size: 16px;
+        padding: 0.75rem;
+    }
+    
+    .submit-btn {
+        padding: 0.9rem 1.2rem;
+        font-size: 1rem;
+    }
 }
 
+/* Responsive Design - Mobile (480px and below) */
 @media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .diary-page {
+        margin: 4.5rem 0.5rem 1rem;
+        padding: 1rem;
+    }
+    
     .diary-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
     }
     
     .logo {
         font-size: 1.5rem;
     }
     
+    .nav-container {
+        padding: 0 0.5rem;
+    }
+    
     .nav-links {
-        gap: 1rem;
+        position: absolute;
+        top: 55px;
+        left: 0;
+        right: 0;
     }
     
     .nav-links a {
-        font-size: 1rem;
+        padding: 0.8rem 1rem;
+        font-size: 0.95rem;
+        min-height: 44px;
     }
     
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .entry-subtitle {
+        font-size: 1.4rem;
+    }
+    
+    .entry-text {
+        font-size: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+        margin: 1rem 0 0.5rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+        margin: 0.8rem 0 0.4rem;
+    }
+    
+    h3 {
+        font-size: 1.2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    textarea,
+    select {
+        width: 100%;
+        font-size: 16px;
+        padding: 0.7rem;
+        box-sizing: border-box;
+    }
+    
+    .form-group label {
+        font-size: 0.95rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .submit-btn, .auth-button {
+        padding: 0.8rem;
+        font-size: 1rem;
+        min-height: 44px;
+        width: 100%;
+    }
+    
+    .cta-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Hero section adjustments */
+    .hero {
+        padding: 1rem;
+        margin-top: 4rem;
+    }
+    
+    .hero-container {
+        flex-direction: column;
+    }
+    
+    .hero-content {
+        text-align: center;
+    }
+    
+    .hero-stats {
+        flex-direction: row;
+        gap: 0.5rem;
+        justify-content: center;
+        margin: 1rem 0;
+    }
+    
+    .stat {
+        flex-direction: column;
+        font-size: 0.85rem;
+    }
+    
+    /* Calculator section */
+    .calculator-container {
+        padding: 1rem 0;
+    }
+    
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Result cards */
+    .result-card {
+        padding: 1rem;
+    }
+    
+    .result-value {
+        font-size: 1.8rem;
+    }
+    
+    .result-label {
+        font-size: 0.9rem;
+    }
+    
+    /* Meal cards */
+    .meal-card {
+        padding: 1rem;
+    }
+    
+    .meal-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .meal-calories {
+        font-size: 0.9rem;
+    }
+    
+    /* Footer */
+    .footer-content {
+        gap: 1.5rem;
+    }
+    
+    /* Buttons overall */
+    button {
+        min-height: 44px;
+    }
+    
+    a[class*="button"] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+    }
+}
+
+/* Extra small devices (320px and below) */
+@media (max-width: 320px) {
+    .diary-page {
+        padding: 0.75rem;
+    }
+    
+    .nav-container {
+        padding: 0 0.5rem;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    .diary-title {
+        font-size: 1.5rem;
+    }
+    
+    .entry-text {
+        font-size: 0.95rem;
     }
 }
 
