@@ -4,6 +4,8 @@ import os
 import math
 import json
 import hashlib
+import random
+import re
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -200,8 +202,6 @@ FALLBACK_MEALS = {
 
 def get_fallback_meals(region, calorie_limit, food_preference):
     """Generate fallback meal recommendations when API is unavailable"""
-    import random
-    
     # Get region data or use default
     region_data = FALLBACK_MEALS.get(region, FALLBACK_MEALS['Default'])
     
@@ -220,8 +220,8 @@ def get_fallback_meals(region, calorie_limit, food_preference):
         # Pick a random meal from the available options
         meal = random.choice(available_meals)
         
-        # Adjust calories to be closer to target
-        adjusted_calories = int(meal['calories'] * (target_calories / meal['calories']) * random.uniform(0.9, 1.1))
+        # Adjust calories to be closer to target with some variation
+        adjusted_calories = int(target_calories * random.uniform(0.9, 1.1))
         adjusted_calories = max(200, min(adjusted_calories, target_calories + 100))  # Keep within reasonable range
         
         meals[meal_type] = {
@@ -349,8 +349,6 @@ IMPORTANT: Only respond with the HTML structure above. Do not add any extra text
 def parse_meal_plan(html_content):
     """Parse the HTML response to extract meal information with improved error handling"""
     try:
-        import re
-        
         # If it's an error message, return None
         if 'error-message' in html_content or 'API Configuration Required' in html_content:
             return None
