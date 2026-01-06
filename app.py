@@ -47,6 +47,190 @@ def calculate_calorie_needs(bmr, activity_level):
     }
     return bmr * activity_multipliers.get(activity_level, 1.2)
 
+# Fallback meal database for when API is unavailable
+FALLBACK_MEALS = {
+    'Karnataka': {
+        'breakfast': {
+            'vegetarian': [
+                {'name': 'Bisi Bele Bath', 'calories': 350, 'description': 'Traditional Karnataka one-pot meal made with rice, lentils, and mixed vegetables, seasoned with aromatic spices. Rich in protein and fiber, this comfort food provides sustained energy throughout the morning.'},
+                {'name': 'Ragi Mudde with Sambar', 'calories': 300, 'description': 'Nutritious finger millet balls served with spicy lentil curry. This high-calcium, high-fiber breakfast is a staple in rural Karnataka and provides excellent nutritional value.'},
+                {'name': 'Akki Roti with Chutney', 'calories': 280, 'description': 'Soft rice flour flatbread mixed with vegetables and served with coconut chutney. Light yet filling, perfect for a healthy start to the day.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Chicken Saaru with Akki Roti', 'calories': 380, 'description': 'Spicy chicken curry in thin gravy served with rice flatbread. High in protein and traditional Karnataka flavors, perfect for a hearty breakfast.'},
+                {'name': 'Egg Dosa', 'calories': 320, 'description': 'Crispy rice crepe topped with beaten eggs and spices. Excellent source of protein and energy to start your day.'},
+            ],
+            'eggetarian': [
+                {'name': 'Masala Dosa with Egg Bhurji', 'calories': 350, 'description': 'Crispy rice crepe with spiced scrambled eggs. Combines traditional South Indian breakfast with protein-rich eggs.'},
+                {'name': 'Egg Upma', 'calories': 300, 'description': 'Semolina porridge with scrambled eggs and vegetables. Protein-packed breakfast that keeps you full longer.'},
+            ]
+        },
+        'lunch': {
+            'vegetarian': [
+                {'name': 'Sambar Rice with Gojju', 'calories': 450, 'description': 'Lentil curry mixed with steamed rice served with tangy vegetable curry. Complete meal with protein, carbs, and essential nutrients from various vegetables.'},
+                {'name': 'Jolada Rotti with Ennegai', 'calories': 420, 'description': 'Sorghum flatbread with stuffed brinjal curry. High in fiber and nutrients, this traditional meal supports digestive health.'},
+                {'name': 'Vangi Bath', 'calories': 400, 'description': 'Aromatic rice dish cooked with brinjal and special spice mix. Rich in antioxidants and flavorful Karnataka specialty.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Chicken Pulao', 'calories': 520, 'description': 'Fragrant rice cooked with chicken and aromatic spices. Complete meal with high protein content and balanced nutrition.'},
+                {'name': 'Mutton Saaru with Rice', 'calories': 550, 'description': 'Spicy mutton curry in thin rasam-like gravy served with rice. Rich in protein and iron, traditional Karnataka non-vegetarian meal.'},
+                {'name': 'Fish Curry with Rice', 'calories': 480, 'description': 'Coastal Karnataka style fish curry with steamed rice. Excellent source of omega-3 fatty acids and lean protein.'},
+            ],
+            'eggetarian': [
+                {'name': 'Egg Biryani', 'calories': 480, 'description': 'Fragrant rice layered with boiled eggs and aromatic spices. Protein-rich complete meal with traditional Karnataka flavors.'},
+                {'name': 'Palya with Egg Curry', 'calories': 440, 'description': 'Mixed vegetable stir-fry with egg curry and rice. Balanced meal with vegetables and protein.'},
+            ]
+        },
+        'dinner': {
+            'vegetarian': [
+                {'name': 'Bisibelebath with Raita', 'calories': 380, 'description': 'Spiced rice and lentil dish served with cooling yogurt salad. Easy to digest evening meal with balanced nutrition.'},
+                {'name': 'Akki Roti with Huli', 'calories': 350, 'description': 'Rice flatbread with tangy tamarind curry. Light dinner option rich in probiotics and easy on digestion.'},
+                {'name': 'Ragi Mudde with Soppu Saaru', 'calories': 320, 'description': 'Finger millet balls with leafy greens curry. Nutritious dinner high in calcium and iron.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Chicken Ghee Roast with Roti', 'calories': 420, 'description': 'Spicy roasted chicken with wheat flatbread. Protein-rich dinner with authentic Karnataka spice blend.'},
+                {'name': 'Mutton Chops Masala', 'calories': 450, 'description': 'Tender mutton pieces cooked in rich spicy gravy. High protein dinner with traditional flavors.'},
+                {'name': 'Fish Fry with Ragi Mudde', 'calories': 400, 'description': 'Crispy fried fish served with finger millet balls. Coastal Karnataka dinner packed with protein and nutrients.'},
+            ],
+            'eggetarian': [
+                {'name': 'Egg Pulao with Raita', 'calories': 400, 'description': 'Fragrant rice cooked with eggs and spices, served with yogurt salad. Light yet satisfying dinner.'},
+                {'name': 'Egg Korma with Roti', 'calories': 380, 'description': 'Boiled eggs in creamy curry with wheat flatbread. Protein-rich dinner with mild spices.'},
+            ]
+        }
+    },
+    'Tamil Nadu': {
+        'breakfast': {
+            'vegetarian': [
+                {'name': 'Idli with Sambar', 'calories': 280, 'description': 'Steamed rice cakes with lentil curry. Low-calorie, easily digestible breakfast rich in probiotics.'},
+                {'name': 'Pongal with Vadai', 'calories': 350, 'description': 'Savory rice and lentil porridge with lentil fritters. Comfort food packed with protein and energy.'},
+                {'name': 'Appam with Coconut Milk', 'calories': 300, 'description': 'Soft rice pancakes with sweetened coconut milk. Light breakfast with good carbs and healthy fats.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Chicken Chettinad with Appam', 'calories': 400, 'description': 'Spicy chicken curry with rice pancakes. High-protein breakfast with authentic Tamil flavors.'},
+                {'name': 'Egg Dosa', 'calories': 320, 'description': 'Rice crepe topped with eggs. Protein-packed start to the day.'},
+            ],
+            'eggetarian': [
+                {'name': 'Masala Dosa with Egg Curry', 'calories': 360, 'description': 'Stuffed rice crepe with egg curry. Complete breakfast with protein and carbs.'},
+                {'name': 'Pongal with Boiled Eggs', 'calories': 330, 'description': 'Savory rice porridge with eggs. Nutritious and filling breakfast.'},
+            ]
+        },
+        'lunch': {
+            'vegetarian': [
+                {'name': 'Sambar Rice with Poriyal', 'calories': 450, 'description': 'Lentil curry with rice and stir-fried vegetables. Balanced meal with complete nutrition.'},
+                {'name': 'Curd Rice with Pickle', 'calories': 380, 'description': 'Yogurt mixed with rice and spices. Cooling and probiotic-rich lunch.'},
+                {'name': 'Tamarind Rice with Vadai', 'calories': 420, 'description': 'Tangy rice with lentil fritters. Flavorful meal rich in antioxidants.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Chicken Biryani', 'calories': 550, 'description': 'Aromatic rice layered with spiced chicken. Complete meal high in protein.'},
+                {'name': 'Fish Curry with Rice', 'calories': 480, 'description': 'Tangy fish curry with steamed rice. Rich in omega-3 and protein.'},
+                {'name': 'Mutton Kuzhambu with Rice', 'calories': 520, 'description': 'Spicy mutton curry with rice. High-protein traditional Tamil meal.'},
+            ],
+            'eggetarian': [
+                {'name': 'Egg Biryani', 'calories': 480, 'description': 'Spiced rice with boiled eggs. Protein-rich one-pot meal.'},
+                {'name': 'Egg Curry with Rice', 'calories': 440, 'description': 'Eggs in spicy gravy with rice. Balanced protein and carb lunch.'},
+            ]
+        },
+        'dinner': {
+            'vegetarian': [
+                {'name': 'Idli with Coconut Chutney', 'calories': 300, 'description': 'Soft steamed rice cakes with coconut chutney. Light and easily digestible dinner.'},
+                {'name': 'Pongal with Sambar', 'calories': 350, 'description': 'Rice and lentil porridge with lentil curry. Comfort dinner with balanced nutrition.'},
+                {'name': 'Dosa with Tomato Chutney', 'calories': 320, 'description': 'Crispy rice crepe with tangy chutney. Light evening meal.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Chicken 65 with Roti', 'calories': 400, 'description': 'Spicy fried chicken with flatbread. Protein-rich dinner.'},
+                {'name': 'Fish Fry with Rice', 'calories': 420, 'description': 'Crispy fried fish with steamed rice. Coastal Tamil dinner.'},
+                {'name': 'Mutton Chukka', 'calories': 450, 'description': 'Dry mutton preparation with spices. High-protein dinner dish.'},
+            ],
+            'eggetarian': [
+                {'name': 'Egg Kothu Parotta', 'calories': 400, 'description': 'Shredded flatbread with eggs and spices. Satisfying dinner option.'},
+                {'name': 'Egg Curry with Parotta', 'calories': 380, 'description': 'Eggs in curry with layered flatbread. Protein-packed dinner.'},
+            ]
+        }
+    },
+    'Default': {  # Generic Indian meals for states not specifically covered
+        'breakfast': {
+            'vegetarian': [
+                {'name': 'Poha with Peanuts', 'calories': 300, 'description': 'Flattened rice cooked with vegetables and peanuts. Light, nutritious breakfast popular across India.'},
+                {'name': 'Upma with Chutney', 'calories': 280, 'description': 'Semolina porridge with vegetables and coconut chutney. Quick, healthy breakfast option.'},
+                {'name': 'Paratha with Curd', 'calories': 350, 'description': 'Stuffed flatbread with yogurt. Filling breakfast with good carbs and probiotics.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Egg Paratha', 'calories': 380, 'description': 'Flatbread stuffed with eggs. High-protein breakfast.'},
+                {'name': 'Chicken Sandwich', 'calories': 350, 'description': 'Grilled chicken with bread. Protein-rich breakfast option.'},
+            ],
+            'eggetarian': [
+                {'name': 'Egg Bhurji with Bread', 'calories': 320, 'description': 'Scrambled eggs with whole wheat bread. Simple, protein-packed breakfast.'},
+                {'name': 'Omelette with Toast', 'calories': 300, 'description': 'Fluffy omelette with toasted bread. Classic breakfast option.'},
+            ]
+        },
+        'lunch': {
+            'vegetarian': [
+                {'name': 'Dal Rice with Sabzi', 'calories': 450, 'description': 'Lentil curry with rice and vegetable curry. Complete balanced meal.'},
+                {'name': 'Rajma Chawal', 'calories': 480, 'description': 'Kidney bean curry with rice. High in protein and fiber.'},
+                {'name': 'Chole with Roti', 'calories': 420, 'description': 'Chickpea curry with flatbread. Protein-rich vegetarian meal.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Chicken Curry with Rice', 'calories': 520, 'description': 'Spiced chicken curry with steamed rice. High-protein lunch.'},
+                {'name': 'Mutton Curry with Roti', 'calories': 550, 'description': 'Rich mutton curry with wheat flatbread. Hearty lunch option.'},
+                {'name': 'Fish Curry with Rice', 'calories': 480, 'description': 'Fish in curry with rice. Omega-3 rich lunch.'},
+            ],
+            'eggetarian': [
+                {'name': 'Egg Curry with Rice', 'calories': 460, 'description': 'Boiled eggs in curry gravy with rice. Balanced lunch.'},
+                {'name': 'Egg Biryani', 'calories': 480, 'description': 'Spiced rice with eggs. One-pot protein meal.'},
+            ]
+        },
+        'dinner': {
+            'vegetarian': [
+                {'name': 'Khichdi with Kadhi', 'calories': 350, 'description': 'Rice and lentil porridge with yogurt curry. Easy to digest dinner.'},
+                {'name': 'Vegetable Pulao with Raita', 'calories': 380, 'description': 'Mixed vegetable rice with yogurt. Light evening meal.'},
+                {'name': 'Paneer Bhurji with Roti', 'calories': 400, 'description': 'Scrambled cottage cheese with flatbread. High-protein dinner.'},
+            ],
+            'non-vegetarian': [
+                {'name': 'Grilled Chicken with Salad', 'calories': 380, 'description': 'Grilled chicken breast with fresh vegetables. Lean protein dinner.'},
+                {'name': 'Fish Tikka with Roti', 'calories': 400, 'description': 'Grilled fish with flatbread. Healthy protein-rich dinner.'},
+                {'name': 'Chicken Soup with Bread', 'calories': 350, 'description': 'Clear chicken soup with whole wheat bread. Light evening meal.'},
+            ],
+            'eggetarian': [
+                {'name': 'Egg Fried Rice', 'calories': 380, 'description': 'Rice stir-fried with eggs and vegetables. Balanced dinner.'},
+                {'name': 'Egg Curry with Roti', 'calories': 360, 'description': 'Eggs in curry with wheat flatbread. Satisfying dinner.'},
+            ]
+        }
+    }
+}
+
+def get_fallback_meals(region, calorie_limit, food_preference):
+    """Generate fallback meal recommendations when API is unavailable"""
+    import random
+    
+    # Get region data or use default
+    region_data = FALLBACK_MEALS.get(region, FALLBACK_MEALS['Default'])
+    
+    # Map mixed preference to vegetarian as fallback
+    pref_key = food_preference if food_preference in ['vegetarian', 'non-vegetarian', 'eggetarian'] else 'vegetarian'
+    
+    # Calculate calorie distribution
+    breakfast_calories = int(calorie_limit * 0.25)
+    lunch_calories = int(calorie_limit * 0.40)
+    dinner_calories = int(calorie_limit * 0.35)
+    
+    # Select meals
+    meals = {}
+    for meal_type, target_calories in [('breakfast', breakfast_calories), ('lunch', lunch_calories), ('dinner', dinner_calories)]:
+        available_meals = region_data[meal_type].get(pref_key, region_data[meal_type]['vegetarian'])
+        # Pick a random meal from the available options
+        meal = random.choice(available_meals)
+        
+        # Adjust calories to be closer to target
+        adjusted_calories = int(meal['calories'] * (target_calories / meal['calories']) * random.uniform(0.9, 1.1))
+        adjusted_calories = max(200, min(adjusted_calories, target_calories + 100))  # Keep within reasonable range
+        
+        meals[meal_type] = {
+            'description': f"{meal['name']}. {meal['description']}",
+            'calories': adjusted_calories
+        }
+    
+    return meals
+
 def get_food_recommendations(region, city, calorie_limit, food_preference, previous_meals=None):
     """Get food recommendations from OpenRouter API only"""
     # If no API client is available, return error message
@@ -155,16 +339,12 @@ IMPORTANT: Only respond with the HTML structure above. Do not add any extra text
         return api_response
         
     except Exception as e:
-        # If API call fails, return error message
+        # If API call fails, use fallback recommendations
         print(f"DeepSeek API Error: {e}")
-        return f"""
-        <div class="error-message">
-            <h4>API Error</h4>
-            <p>Unable to get food recommendations at this time.</p>
-            <p><strong>Error:</strong> {str(e)}</p>
-            <p>Please check your API key or try again later.</p>
-        </div>
-        """
+        print(f"Using fallback meal recommendations for {region}")
+        
+        # Return None to trigger fallback in caller
+        return None
 
 def parse_meal_plan(html_content):
     """Parse the HTML response to extract meal information with improved error handling"""
@@ -565,19 +745,27 @@ def calculator():
                     print("Trying AI-powered meal recommendations...")
                     # Include previous meals in prompt to avoid duplicates
                     meal_plan_html = get_food_recommendations(state, city, int(daily_calories), food_preference, previous_meals)
-                    meal_plan = parse_meal_plan(meal_plan_html)
-                    if meal_plan:
-                        print("AI meal recommendations successful!")
-                        # Add to user's meal history
-                        add_meal_to_history(username, meal_plan)
+                    if meal_plan_html:  # Check if we got a response
+                        meal_plan = parse_meal_plan(meal_plan_html)
+                        if meal_plan:
+                            print("AI meal recommendations successful!")
+                            # Add to user's meal history
+                            add_meal_to_history(username, meal_plan)
+                        else:
+                            print("AI meal parsing failed, using fallback")
                     else:
-                        print("AI meal parsing failed")
+                        print("API returned None, using fallback")
                 except Exception as e:
-                    print(f"AI recommendations failed: {e}")
+                    print(f"AI recommendations failed: {e}, using fallback")
             
-            # If AI failed or not available, show error message
+            # If AI failed or not available, use fallback meals
             if not meal_plan:
-                print("No meal recommendations available - API failed")
+                print(f"Using fallback meal recommendations for {state}")
+                meal_plan = get_fallback_meals(state, int(daily_calories), food_preference)
+                if meal_plan:
+                    print("Fallback meal recommendations successful!")
+                    # Add to user's meal history
+                    add_meal_to_history(username, meal_plan)
             
             print(f"Final meal plan: {list(meal_plan.keys()) if meal_plan else 'None'}")
             
@@ -655,8 +843,21 @@ def calculate():
         bmr = calculate_bmr(gender, weight, height, age)
         calorie_needs = calculate_calorie_needs(bmr, activity)
         
-        # Get food recommendations
-        recommendations = get_food_recommendations(state, calorie_needs, food_preference)
+        # Get food recommendations - try API first, then fallback
+        recommendations_html = None
+        recommendations = None
+        
+        if client is not None:
+            try:
+                recommendations_html = get_food_recommendations(state, '', int(calorie_needs), food_preference)
+                if recommendations_html:
+                    recommendations = parse_meal_plan(recommendations_html)
+            except Exception as e:
+                print(f"API recommendations failed in /calculate: {e}")
+        
+        # Use fallback if API failed
+        if not recommendations:
+            recommendations = get_fallback_meals(state, int(calorie_needs), food_preference)
         
         # Return results as JSON
         return jsonify({
