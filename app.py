@@ -201,7 +201,26 @@ FALLBACK_MEALS = {
 }
 
 def get_fallback_meals(region, calorie_limit, food_preference):
-    """Generate fallback meal recommendations when API is unavailable"""
+    """Generate fallback meal recommendations when API is unavailable.
+    
+    Args:
+        region (str): Indian state name (e.g., 'Karnataka', 'Tamil Nadu')
+        calorie_limit (int): Total daily calorie target
+        food_preference (str): Dietary preference - 'vegetarian', 'non-vegetarian', 'eggetarian', or 'mixed'
+    
+    Returns:
+        dict: Meal plan with breakfast, lunch, and dinner, each containing:
+            - description (str): Dish name and description
+            - calories (int): Adjusted calorie count for the meal
+    
+    Example:
+        >>> get_fallback_meals('Karnataka', 2000, 'vegetarian')
+        {
+            'breakfast': {'description': 'Bisi Bele Bath. Traditional...', 'calories': 500},
+            'lunch': {'description': 'Sambar Rice...', 'calories': 800},
+            'dinner': {'description': 'Ragi Mudde...', 'calories': 700}
+        }
+    """
     # Get region data or use default
     region_data = FALLBACK_MEALS.get(region, FALLBACK_MEALS['Default'])
     
