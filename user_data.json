@@ -1,0 +1,81 @@
+{
+  "users": {
+    "testuser": {
+      "username": "testuser",
+      "email": "test@example.com",
+      "password_hash": "ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae",
+      "created_at": "2026-01-06T06:08:33.374909",
+      "profile": {
+        "age": 25,
+        "gender": "male",
+        "height": 175,
+        "weight": 70.0,
+        "activity_level": "moderate",
+        "food_preference": "vegetarian",
+        "state": "Karnataka",
+        "city": "Bangalore"
+      },
+      "bmr_history": [
+        {
+          "date": "2026-01-06",
+          "bmr": 1674,
+          "tdee": 2594,
+          "goal_calories": 2594
+        }
+      ],
+      "meal_history": [
+        {
+          "date": "2026-01-06",
+          "meal_plan": [
+            "Breakfast: Bisi Bele Bath. Traditional Karnataka one-pot meal made with rice, lentils, and mixed vegetables, seasoned with aromatic spices. Rich in protein and fiber, this comfort food provides sustained energy throughout the morning.",
+            "Lunch: Jolada Rotti with Ennegai. Sorghum flatbread with stuffed brinjal curry. High in fiber and nutrients, this traditional meal supports digestive health.",
+            "Dinner: Ragi Mudde with Soppu Saaru. Finger millet balls with leafy greens curry. Nutritious dinner high in calcium and iron."
+          ]
+        }
+      ],
+      "goals": {
+        "daily_water": {
+          "target": 8,
+          "completed": false,
+          "date_completed": null
+        },
+        "daily_exercise": {
+          "target": "30 minutes",
+          "completed": false,
+          "date_completed": null
+        },
+        "healthy_meals": {
+          "target": 3,
+          "completed": false,
+          "date_completed": null
+        },
+        "sleep_hours": {
+          "target": 8,
+          "completed": false,
+          "date_completed": null
+        },
+        "meditation": {
+          "target": "10 minutes",
+          "completed": false,
+          "date_completed": null
+        }
+      },
+      "progress": {
+        "total_goals": 5,
+        "completed_today": 0,
+        "completion_percentage": 0,
+        "streak_days": 0,
+        "last_activity": "2026-01-06"
+      },
+      "settings": {
+        "email_notifications": true,
+        "preferred_meal_types": [],
+        "dietary_restrictions": [],
+        "favorite_cuisines": []
+      },
+      "meal_completions": {
+        "2026-01-06": []
+      }
+    }
+  }
+}
